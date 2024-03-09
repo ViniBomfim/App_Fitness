@@ -1,0 +1,83 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejamento de Treinos - FITNESS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+        .container {
+            width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label, input {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Planejamento de Treinos</h1>
+        <form action="/planejamento_treinos" method="POST">
+            <label for="exercicio">Nome do Exercício:</label>
+            <input type="text" id="exercicio" name="exercicio" required>
+            <label for="repeticoes">Número de Repetições:</label>
+            <input type="number" id="repeticoes" name="repeticoes" required>
+            <label for="descanso">Tempo de Descanso (segundos):</label>
+            <input type="number" id="descanso" name="descanso" required>
+            <input type="submit" value="Adicionar Exercício">
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="success-message">
+            {% for category, message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
