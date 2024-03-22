@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de IMC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        .calculator {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-group label {
+            margin-right: 10px;
+        }
+
+        .input-group input {
+            width: 80px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .calculate-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .result {
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculadora de IMC</h1>
+        <div class="calculator">
+            <form action="/calculadora_imc" method="POST" class="form">
+                <div class="input-group">
+                    <label for="peso">Peso (kg):</label>
+                    <input type="number" id="peso" name="peso" required step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="altura">Altura (m):</label>
+                    <input type="number" id="altura" name="altura" required step="0.01">
+                </div>
+                <button type="submit" class="calculate-btn">Calcular IMC</button>
+            </form>
+        </div>
+        {% if imc %}
+        <div class="result">
+            <p>Seu IMC é de {{ imc }} kg/m².</p>
+            <p>De acordo com a Organização Mundial da Saúde:</p>
+            {% if imc < 18.5 %}
+                <p>Seu IMC indica magreza.</p>
+            {% elif imc >= 18.5 and imc <= 24.9 %}
+                <p>Seu IMC é considerado normal para a sua altura.</p>
+            {% elif imc >= 25 and imc <= 29.9 %}
+                <p>Seu IMC indica sobrepeso.</p>
+            {% else %}
+                <p>Seu IMC indica obesidade.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
