@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado do IMC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        .result {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .imc-value {
+            font-size: 3rem;
+            color: #28a745;
+        }
+
+        .imc-category {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .info-text {
+            margin-top: 20px;
+            color: #555;
+            text-align: center;
+        }
+
+        .info-values {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #555;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Resultado do IMC</h1>
+        <div class="result">
+            <p class="imc-value">Seu IMC é de {{ imc }} kg/m².</p>
+            {% if imc < 18.5 %}
+                <p class="imc-category">De acordo com a Organização Mundial da Saúde, seu IMC indica magreza.</p>
+            {% elif imc >= 18.5 and imc <= 24.9 %}
+                <p class="imc-category">De acordo com a Organização Mundial da Saúde, seu IMC é considerado normal para a sua altura.</p>
+            {% elif imc >= 25 and imc <= 29.9 %}
+                <p class="imc-category">De acordo com a Organização Mundial da Saúde, seu IMC indica sobrepeso.</p>
+            {% else %}
+                <p class="imc-category">De acordo com a Organização Mundial da Saúde, seu IMC indica obesidade.</p>
+            {% endif %}
+        </div>
+        <div class="info-text">
+            <p>Para manter um IMC normal, seu peso deve estar entre:</p>
+        </div>
+        <div class="info-values">
+            <p>{{ (altura**2 * 18.5) | round(1) }} kg e {{ (altura**2 * 24.9) | round(1) }} kg.</p>
+        </div>
+    </div>
+</body>
+
+</html>
