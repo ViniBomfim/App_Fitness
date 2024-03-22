@@ -124,6 +124,24 @@ def listar_atividades():
 
 
 
+@app.route('/calculadora_imc', methods=['GET', 'POST'])
+def calculadora_imc():
+    if request.method == 'POST':
+        peso = float(request.form['peso'])
+        altura = float(request.form['altura'])
+        
+        # Calcular o IMC
+        imc = calcular_imc(peso, altura)
+        
+        return render_template('resultado_imc.html', imc=imc, altura=altura)
+    
+    return render_template('calculadora_imc.html')
+
+
+def calcular_imc(peso, altura):
+    # Fórmula do IMC: peso (kg) / altura^2 (m)
+    imc = peso / (altura ** 2)
+    return round(imc, 2)
 
 
 
