@@ -130,7 +130,7 @@ def calculadora_imc():
         peso = float(request.form['peso'])
         altura = float(request.form['altura'])
         
-        # Calcular o IMC
+      
         imc = calcular_imc(peso, altura)
         
         return render_template('resultado_imc.html', imc=imc, altura=altura)
@@ -139,7 +139,6 @@ def calculadora_imc():
 
 
 def calcular_imc(peso, altura):
-    # Fórmula do IMC: peso (kg) / altura^2 (m)
     imc = peso / (altura ** 2)
     return round(imc, 2)
 
@@ -158,22 +157,12 @@ def calcular_imc(peso, altura):
 @app.route('/planejamento_treinos', methods=['GET', 'POST'])
 def planejamento_treinos():
     if request.method == 'POST':
-        
-        
-        flash('Treino salvo com sucesso!', 'success')
-        
+        semana = request.form['semana']
+        exercicio = request.form['exercicio']
+        repeticoes = request.form['repeticoes']
+        descanso = request.form['descanso']
 
     return render_template('planejamento_treinos.html')
-
-
-
-
-
-
-
-
-
-
 
 
 
