@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejamento de Treinos - FITNESS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+        .container {
+            width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label, input {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"], input[type="button"] {
+            width: calc(100% - 20px); 
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 10px; 
+        }
+        input[type="submit"]:hover, input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Planejamento de Treinos</h1>
+        <form id="formExercicio">
+            <label for="semana">Dia da Semana:</label>
+            <input type="text" id="semana" name="semana" required>
+            <label for="exercicio">Nome do Exercício:</label>
+            <input type="text" id="exercicio" name="exercicio" required>
+            <label for="repeticoes">Número de Repetições:</label>
+            <input type="number" id="repeticoes" name="repeticoes" required>
+            <label for="descanso">Tempo de Descanso (S):</label>
+            <input type="number" id="descanso" name="descanso" required>
+            <input type="button" id="btnAdicionar" value="Adicionar Exercício">
+        </form>
+        <h2>Exercícios Adicionados:</h2>
+        <table id="tabela-exercicios">
+            <thead>
+                <tr>
+                    <th>Semana</th>
+                    <th>Exercício</th>
+                    <th>Repetições</th>
+                    <th>Descanso (S)</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela">
+                
+            </tbody>
+        </table>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="success-message">
+            {% for category, message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    
+    <script>
+        
+        function adicionarExercicio() {
+            var semana = document.getElementById("semana").value;
+            var exercicio = document.getElementById("exercicio").value;
+            var repeticoes = document.getElementById("repeticoes").value;
+            var descanso = document.getElementById("descanso").value;
+
+            var corpoTabela = document.getElementById("corpo-tabela");
+            var novaLinha = corpoTabela.insertRow();
+            var colSemana = novaLinha.insertCell(0);
+            var colExercicio = novaLinha.insertCell(1);
+            var colRepeticoes = novaLinha.insertCell(2);
+            var colDescanso = novaLinha.insertCell(3);
+
+            colSemana.textContent = semana;
+            colExercicio.textContent = exercicio;
+            colRepeticoes.textContent = repeticoes;
+            colDescanso.textContent = descanso;
+
+            document.getElementById("formExercicio").reset(); 
+        }
+
+        
+        document.getElementById("btnAdicionar").addEventListener("click", adicionarExercicio);
+    </script>
+</body>
+</html>
