@@ -3,13 +3,13 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '123456'
+app.config['SECRET_KEY'] = '12345'
 
 
 conexao = mysql.connector.connect(
     host='localhost',
     user='root',
-    password='123456',
+    password='admin',
     database='fitness',
     auth_plugin='mysql_native_password'
 )
