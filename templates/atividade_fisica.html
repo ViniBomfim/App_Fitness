@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,14 +10,32 @@
             margin: 0;
             padding: 0;
             background-color: #f3f3f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .container {
-            width: 600px;
-            margin: 50px auto;
+            width: 800px;
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-section {
+            width: 100%;
+        }
+        .musculacao-section {
+            width: 100%;
+            background-color: #f3f3f3;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            max-height: 400px;
+            display: none; /* Initially hidden */
         }
         h1 {
             text-align: center;
@@ -32,7 +48,7 @@
             display: block;
             margin-bottom: 10px;
         }
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"], input[type="time"], input[type="date"], select {
             width: calc(100% - 20px);
             padding: 10px;
             border: 1px solid #ccc;
@@ -50,8 +66,6 @@
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
-
-       
         .btn-calcular {
             display: inline-block;
             padding: 5px 15px;
@@ -60,41 +74,118 @@
             border-radius: 5px;
             background-color: #007bff;
             color: #fff;
-            text-decoration: none; /
+            text-decoration: none;
         }
-
-       
         .btn-calcular:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
+        .exercicio-group {
+            margin-bottom: 10px;
+        }
+        .exercicio-item {
+            margin-bottom: 10px;
+        }
+        .exercicio-item input {
+            width: calc(100% - 20px);
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        .exercicio-item button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .exercicio-item button:hover {
+            background-color: #c82333;
+        }
     </style>
+    <script>
+        function toggleFields() {
+            var tipo = document.getElementById("tipo").value;
+            var musculacaoFields = document.getElementById("musculacao_fields");
+            var repeticoesField = document.getElementById("repeticoes_field");
+
+            if (tipo === "Musculação") {
+                musculacaoFields.style.display = "block";
+                repeticoesField.style.display = "none";
+            } else {
+                musculacaoFields.style.display = "none";
+                repeticoesField.style.display = "block";
+            }
+        }
+
+        function addExercicio() {
+            var exercicioContainer = document.getElementById("exercicio_container");
+            var newExercicioGroup = document.createElement("div");
+            newExercicioGroup.className = "exercicio-item";
+            newExercicioGroup.innerHTML = `
+                <input type="text" name="exercicios[]" placeholder="Exercício" required>
+                <input type="number" name="repeticoes[]" placeholder="Repetições" required>
+                <button type="button" onclick="removeExercicio(this)">Remover</button>
+            `;
+            exercicioContainer.appendChild(newExercicioGroup);
+        }
+
+        function removeExercicio(button) {
+            button.parentElement.remove();
+        }
+
+        window.onload = function() {
+            document.getElementById("tipo").addEventListener("change", toggleFields);
+            // Set the minimum date for the date input to today
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById("data").setAttribute("min", today);
+            toggleFields();
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>Registro de Atividade Física</h1>
-        <form action="/registrar_atividade" method="POST">
-            <label for="tipo">Tipo de Atividade:</label>
-            <select id="tipo" name="tipo" required>
-                <option value="">Selecione...</option>
-                <option value="Caminhada">Caminhada</option>
-                <option value="Corrida">Corrida</option>
-                <option value="Futebol">Futebol</option>
-                <option value="Musculação">Musculação</option>
-                <option value="Boxe">Boxe</option>
-                <option value="Muay Thai">Muay Thai</option>
-                
-            </select>
-            <label for="repeticoes">Número de Repetições:</label>
-            <input type="number" id="repeticoes" name="repeticoes" required>
-            <label for="horario">Horário:</label>
-            <input type="time" id="horario" name="horario" required>
-            <label for="data">Data:</label>
-            <input type="date" id="data" name="data" required>
-            <input type="submit" value="Registrar Atividade">
-        </form>
-        <a href="/calculadora_imc" class="btn-calcular">Calcular IMC</a> 
+        <div class="form-section">
+            <h1>Registro de Atividade Física</h1>
+            <form action="/registrar_atividade" method="POST">
+                <label for="tipo">Tipo de Atividade:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecione...</option>
+                    <option value="Caminhada">Caminhada</option>
+                    <option value="Corrida">Corrida</option>
+                    <option value="Futebol">Futebol</option>
+                    <option value="Musculação">Musculação</option>
+                    <option value="Boxe">Boxe</option>
+                    <option value="Muay Thai">Muay Thai</option>
+                </select>
+
+                <div id="repeticoes_field" style="display:none;">
+                    <label for="repeticoes">Número de Repetições:</label>
+                    <input type="number" id="repeticoes" name="repeticoes">
+                </div>
+
+                <div id="musculacao_fields" class="musculacao-section">
+                    <label>Exercícios de Musculação:</label>
+                    <div id="exercicio_container">
+                        <div class="exercicio-item">
+                            <input type="text" name="exercicios[]" placeholder="Exercício" required>
+                            <input type="number" name="repeticoes[]" placeholder="Repetições" required>
+                            <button type="button" onclick="removeExercicio(this)">Remover</button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addExercicio()">Adicionar Exercício</button>
+                </div>
+
+                <label for="horario">Horário:</label>
+                <input type="time" id="horario" name="horario" required>
+
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required>
+
+                <input type="submit" value="Registrar Atividade">
+            </form>
+            <a href="/calculadora_imc" class="btn-calcular">Calcular IMC</a> 
+        </div>
     </div>
-    
 </body>
 </html>
