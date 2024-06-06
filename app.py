@@ -1,113 +1,265 @@
-from flask import Flask, render_template, request, jsonify
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
-from flask import redirect, url_for
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456'
 
 
-conexao = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'vinicius123!',
-    'database': 'fitness',
-    'auth_plugin': 'mysql_native_password'
-}
+conexao = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='123456',
+    database='fitness',
+    auth_plugin='mysql_native_password'
+)
 
-# Função para conectar ao banco de dados
-def connect_to_database():
-    return mysql.connector.connect(**conexao)
+cursor = conexao.cursor()
 
-# Rota para a página inicial
-@app.route('/')
+class User:
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+
+
+@app.route('/criar_desafio', methods=['GET', 'POST'])
+def criar_desafio():
+    if request.method == 'POST':
+        
+        titulo = request.form['titulo']
+        descricao = request.form['descricao']
+        mes = request.form['mes']
+        ano = request.form['ano']
+        
+        
+        cursor.execute("INSERT INTO desafios (titulo, descricao, mes, ano) VALUES (%s, %s, %s, %s)",
+                       (titulo, descricao, mes, ano))
+        conexao.commit()
+        
+        flash('Desafio criado com sucesso!', 'success')
+        return redirect(url_for('desafios'))  # Redirecionar de volta para a página de desafios
+
+    
+    cursor.execute("SELECT * FROM desafios")
+    desafios = cursor.fetchall()
+    
+    
+    return render_template('desafios.html', desafios=desafios)
+
+
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    conn = connect_to_database()
-    cursor = conn.cursor()
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
 
-    cursor.execute("SELECT * FROM metas")
-    metas = cursor.fetchall()
+        
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        existing_user = cursor.fetchone()
 
-    conn.close()
+        if existing_user:
+            flash('Esse nome de usuário já está em uso.', 'error')
+        else:
+            
+            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+            conexao.commit()
 
-    return render_template('index.html', metas=metas)
+            return redirect(url_for('login'))  
+            
 
-# Rota para adicionar uma nova meta
-# Rota para adicionar uma nova meta
-@app.route('/metas', methods=['POST'])
-def add_goal():
-    data = request.json
-    if 'descricao' not in data or 'valor_meta' not in data or 'data_limite' not in data:
-        return jsonify({'error': 'Faltam informações'}), 400
+    return render_template('index.html')
 
-    conn = connect_to_database()
-    cursor = conn.cursor()
 
-    query = "INSERT INTO metas (descricao, valor_meta, data_limite) VALUES (%s, %s, %s)"
-    cursor.execute(query, (data['descricao'], data['valor_meta'], data['data_limite']))
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    username = request.args.get('username', '')  
+
+    if request.method == 'POST':
+        
+        username = request.form['username']
+        password = request.form['password']
+        
+        
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+
+        if user:
+            
+            if user[2] == password:  
+                flash('Login bem-sucedido!', 'success')
+                return redirect(url_for('registrar_atividade'))
+            else:
+                flash('Senha incorreta.', 'error')
+        else:
+            flash('Usuário não encontrado.', 'error')
+
+    return render_template('login.html') 
+
+
+
+@app.route('/registrar_atividade', methods=['GET', 'POST'])
+def registrar_atividade():
+    if request.method == 'POST':
+        
+        if 'tipo' in request.form:
+            tipo = request.form['tipo']
+        else:
+            
+            flash('Tipo de atividade não especificado.', 'error')
+            return redirect(url_for('registrar_atividade'))
+
+        
+        tipo = request.form['tipo']
+        repeticoes = request.form['repeticoes']
+        horario = request.form['horario']
+        data = request.form['data']
+        
+        
+        horario = datetime.strptime(horario, '%H:%M').time()
+        data = datetime.strptime(data, '%Y-%m-%d').date()
+        
+        
+        cursor.execute("INSERT INTO atividades_fisicas (tipo, repeticoes, horario, data) VALUES (%s, %s, %s, %s)",
+                       (tipo, repeticoes, horario, data))
+        conexao.commit()
+        
+        
+        cursor.execute("SELECT * FROM atividades_fisicas")
+        atividades = cursor.fetchall()
+
+        
+        flash('Atividade física registrada com sucesso!', 'success')
+        
+        
+        return redirect(url_for('listar_atividades', atividades=atividades))
+
     
-    conn.commit()
+    return render_template('atividade_fisica.html')
 
-    # Recuperar a nova meta inserida
-    cursor.execute("SELECT * FROM metas ORDER BY id DESC LIMIT 1")
-    nova_meta = cursor.fetchone()
+
+
+@app.route('/listar_atividades')
+def listar_atividades():
     
-    conn.close()
-
-    # Formatar os dados da nova meta
-    nova_meta_dict = {
-        'id': nova_meta[0],
-        'descricao': nova_meta[1],
-        'valor_meta': nova_meta[2],
-        'data_limite': nova_meta[3]
-    }
-
-    return jsonify(nova_meta_dict), 200
-
-
-# Rota para listar todas as metas
-@app.route('/metas', methods=['GET'])
-def get_goals():
-    conn = connect_to_database()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM metas")
-    metas = cursor.fetchall()
-
-    conn.close()
-
-    return render_template('listar_metas.html',metas=metas), 200
-
-# Rota para atualizar uma meta
-@app.route('/metas/<int:id>', methods=['PUT'])
-def update_goal(id):
-    data = request.json
-    if 'descricao' not in data or 'valor_meta' not in data or 'data_limite' not in data:
-        return jsonify({'error': 'Faltam informações'}), 400
-
-    conn = connect_to_database()
-    cursor = conn.cursor()
-
-    query = "UPDATE metas SET descricao=%s, valor_meta=%s, data_limite=%s WHERE id=%s"
-    cursor.execute(query, (data['descricao'], data['valor_meta'], data['data_limite'], id))
+    cursor.execute("SELECT * FROM atividades_fisicas")
+    atividades = cursor.fetchall()
     
-    conn.commit()
-    conn.close()
-
-    return jsonify({'message': 'Meta atualizada com sucesso'}), 200
-
-# Rota para excluir uma meta
-@app.route('/metas/<int:id>', methods=['DELETE'])
-def delete_goal(id):
-    conn = connect_to_database()
-    cursor = conn.cursor()
-
-    query = "DELETE FROM metas WHERE id=%s"
-    cursor.execute(query, (id,))
     
-    conn.commit()
-    conn.close()
+    return render_template('lista_atividades.html', atividades=atividades)
 
-    return jsonify({'message': 'Meta excluída com sucesso'}), 200
+
+
+@app.route('/calculadora_imc', methods=['GET', 'POST'])
+def calculadora_imc():
+    if request.method == 'POST':
+        peso = float(request.form['peso'])
+        altura = float(request.form['altura'])
+        
+        
+        imc = calcular_imc(peso, altura)
+        
+        return render_template('resultado_imc.html', imc=imc, altura=altura)
+    
+    return render_template('calculadora_imc.html')
+
+
+def calcular_imc(peso, altura):
+    # Fórmula do IMC: peso (kg) / altura^2 (m)
+    imc = peso / (altura ** 2)
+    return round(imc, 2)
+
+
+
+
+
+
+
+ 
+@app.route('/planejamento_treinos', methods=['GET', 'POST'])
+def planejamento_treinos():
+    if request.method == 'POST':
+        semana = request.form['semana']
+        exercicio = request.form['exercicio']
+        repeticoes = request.form['repeticoes']
+        descanso = request.form['descanso']
+
+        
+
+        
+
+    return render_template('planejamento_treinos.html')
+
+
+
+
+@app.route('/lembretes', methods=['GET', 'POST'])
+def lembretes():
+    if request.method == 'POST':
+        
+        descricao = request.form['descricao']
+        data_hora = request.form['data_hora']
+        
+        
+        cursor.execute("INSERT INTO lembretes (titulo, descricao, data_hora) VALUES (%s, %s, %s)",
+                       ('', descricao, data_hora))  # Adicionando um título vazio
+        conexao.commit()
+        
+        flash('Lembrete criado com sucesso!', 'success')
+        return redirect(url_for('lembretes'))  # Redirecionar de volta para a página de lembretes
+
+    
+    cursor.execute("SELECT * FROM lembretes")
+    lembretes = cursor.fetchall()
+    
+    
+    return render_template('lembretes.html', lembretes=lembretes)
+
+
+
+@app.route('/excluir_lembrete/<int:id>', methods=['POST'])
+def excluir_lembrete(id):
+    cursor.execute("DELETE FROM lembretes WHERE id = %s", (id,))
+    conexao.commit()
+    flash('Lembrete excluído com sucesso!', 'success')
+    return redirect(url_for('lembretes'))
+
+
+@app.route('/excluir')
+def listar_clientes():
+    
+    cursor.execute("SELECT * FROM users")
+    clientes = [User(id, username, password) for (id, username, password) in cursor.fetchall()]
+    return render_template('lista_clientes.html', clientes=clientes)
+
+
+@app.route('/excluir_cliente/<int:id>', methods=['GET'])
+def excluir_cliente(id):
+    
+    cursor.execute("DELETE FROM users WHERE id = %s", (id,))
+    conexao.commit()
+
+    return redirect(url_for('listar_clientes'))
+
+
+@app.route('/excluir_atividade/<int:id>', methods=['GET'])
+def excluir_atividade(id):
+    
+    cursor.execute("DELETE FROM atividades_fisicas WHERE id = %s", (id,))
+    conexao.commit()
+
+    flash('Atividade física excluída com sucesso!', 'success')
+    return redirect(url_for('listar_atividades'))
+
+
+@app.route('/atividades')
+def excluir_atividades():
+    
+    cursor.execute("SELECT * FROM atividades_fisicas")
+    atividades = cursor.fetchall()
+    return render_template('excluir_atividades.html', atividades=atividades)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
