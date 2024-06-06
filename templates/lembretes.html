@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembretes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="datetime-local"], button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: auto; 
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .delete-button {
+            background-color: #f44336;
+        }
+        .delete-button:hover {
+            background-color: #da190b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lembretes</h1>
+
+        
+        <form action="{{ url_for('lembretes') }}" method="POST">
+            <label for="descricao">Descrição:</label>
+            <input type="text" id="descricao" name="descricao" required>
+            <label for="data_hora">Data e hora:</label>
+            <input type="datetime-local" id="data_hora" name="data_hora" required>
+            <button type="submit">Adicionar Lembrete</button>
+        </form>
+
+        
+        <ul>
+            {% for lembrete in lembretes %}
+            <li>
+                <span>{{ lembrete[2] }} - {{ lembrete[3] }}</span>
+                <form action="{{ url_for('excluir_lembrete', id=lembrete[0]) }}" method="POST">
+                    <button class="delete-button" type="submit">Excluir</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
