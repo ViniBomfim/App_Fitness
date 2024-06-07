@@ -62,10 +62,10 @@
             align-items: center; 
         }
         .delete-button {
-            background-color: #f44336;
+            background-color: #45a049;
         }
         .delete-button:hover {
-            background-color: #da190b;
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -88,7 +88,7 @@
             <li>
                 <span>{{ lembrete[2] }} - {{ lembrete[3] }}</span>
                 <form action="{{ url_for('excluir_lembrete', id=lembrete[0]) }}" method="POST">
-                    <button class="delete-button" type="submit">Excluir</button>
+                    <button class="delete-button" type="submit">Concluir</button>
                 </form>
             </li>
             {% endfor %}
